@@ -9,5 +9,8 @@
 
 	$rawBody = file_get_contents('php://input');
 	$APIEngine=new APIEngine('Card', $_GET, $rawBody, $_SERVER['REQUEST_METHOD']);
-	echo $APIEngine->callApiFunction(); 
+	$response = $APIEngine->callApiFunction();
+	if ($response != 'null') {
+		echo $response; 
+	}
 ?>

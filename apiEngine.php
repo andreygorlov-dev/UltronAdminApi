@@ -2,6 +2,10 @@
     require_once('MySQLiWorker.php');
     require_once ('apiConstants.php');
     
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    
     class APIEngine {
     
         private $apiGetData;
@@ -31,25 +35,25 @@
         function createDefaultJson() {
             $retObject = json_decode('{}');
             $response = APIConstants::$RESPONSE;
-            $retObject->$response = json_decode('{}');
-            return $retObject;
+            return json_decode('{}');
         }
         
         //Вызов функции по переданным параметрам в конструкторе
         function callApiFunction() {
-            $resultFunctionCall = $this->createDefaultJson();//Создаем JSON  ответа
             if (file_exists(dirname(__FILE__). '\\' . $this->apiName . '\\' . $this->apiName . '.php')) {
                 $apiClass = APIEngine::getApiEngineByName($this->apiName);//Получаем объект API
                 $apiReflection = new ReflectionClass($this->apiName);//Через рефлексию получем информацию о классе объекта
                 try {
                     $functionName = $this->method . '_card';//Название метода для вызова
                     $apiReflection->getMethod($functionName);//Провераем наличие метода
-                    $response = APIConstants::$RESPONSE;
-                    $resultFunctionCall->$response = $apiClass->$functionName($this->apiGetData, $this->apiPostData);
-                } catch (Exception $ex) {
-                    //Непредвиденное исключение
+                    return json_encode($apiClass->$functionName($this->apiGetData, $this->apiPostData));
+                } catch (InvalidArgumentException $ex) {
+                    header('HTTP/1.1 400 Bad Request');
                     $resultFunctionCall->error = $ex->getMessage();
-                }
+                } catch (Exception $ex) {
+                    header('HTTP/1.1 500 Internal Server Error');
+                    $resultFunctionCall->error = $ex->getMessage();
+                } 
             } else {
                 //Если запрашиваемый API не найден
                 $resultFunctionCall->errno = APIConstants::$ERROR_ENGINE_PARAMS;
