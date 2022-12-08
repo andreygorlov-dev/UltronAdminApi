@@ -28,7 +28,7 @@
             if (!empty($postObject->img)) {
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
             }
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("\\Card\\sql\\AddCards.sql"))
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("\\Card\\sql\\AddCard.sql"))
                                                                         ->replace("%TITLE%", $postObject->title)
                                                                         ->replace("%DESCRIPTION%", $postObject->description)
                                                                         ->replace("%IMG_SRC%", $imgPath)

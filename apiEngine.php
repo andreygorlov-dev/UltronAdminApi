@@ -44,7 +44,7 @@
                 $apiClass = APIEngine::getApiEngineByName($this->apiName);//Получаем объект API
                 $apiReflection = new ReflectionClass($this->apiName);//Через рефлексию получем информацию о классе объекта
                 try {
-                    $functionName = $this->method . '_card';//Название метода для вызова
+                    $functionName = $this->method . '_' . strtolower($this->apiName);//Название метода для вызова
                     $apiReflection->getMethod($functionName);//Провераем наличие метода
                     return json_encode($apiClass->$functionName($this->apiGetData, $this->apiPostData));
                 } catch (InvalidArgumentException $ex) {
