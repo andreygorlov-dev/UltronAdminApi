@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 4.7.7
+- https://www.phpmyadmin.net
+-
+- Хост: 127.0.0.1:3306
+- Время создания: Дек 08 2022 г., 09:05
+- Версия сервера: 5.6.38
+- Версия PHP: 5.5.38
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="https://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="UltronContentDB" collation="utf8_general_ci" charset="utf8">
+            <pma:table name="CARDS">
+                CREATE TABLE `CARDS` (
+                  `ID` int(11) NOT NULL AUTO_INCREMENT,
+                  `TITLE` varchar(2000) NOT NULL,
+                  `DESCRIPTION` varchar(2000) NOT NULL,
+                  `IMG_SRC` varchar(2000) NOT NULL,
+                  `VIDEO_SRC` varchar(2000) NOT NULL,
+                  `ID_PAGE` int(11) NOT NULL,
+                  PRIMARY KEY (`ID`),
+                  KEY `cards_ibfk_1` (`ID_PAGE`),
+                  CONSTRAINT `cards_ibfk_1` FOREIGN KEY (`ID_PAGE`) REFERENCES `PAGES` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
+                ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+            </pma:table>
+            <pma:table name="PAGES">
+                CREATE TABLE `PAGES` (
+                  `ID` int(11) NOT NULL AUTO_INCREMENT,
+                  `NAME` varchar(2000) NOT NULL,
+                  `IMG_SRC` varchar(2000) NOT NULL,
+                  PRIMARY KEY (`ID`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+            </pma:table>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - База данных: 'UltronContentDB'
+    -->
+    <database name="UltronContentDB">
+        <!-- Таблица CARDS -->
+        <!-- Таблица PAGES -->
+    </database>
+</pma_xml_export>
