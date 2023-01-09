@@ -43,7 +43,7 @@
             $mime_split=explode('/', $mime_split_without_base64[0],2);
             $output_file_with_extension=$output_file_without_extension.'.'.$extension;
             file_put_contents(dirname(__FILE__). '\\' . $path_with_end_slash . $output_file_with_extension, base64_decode($data) );
-            return "/".$path_with_end_slash . "/" . $output_file_with_extension;
+            return $output_file_with_extension;
         }
         
     }

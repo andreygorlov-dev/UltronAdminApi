@@ -1,7 +1,9 @@
 INSERT INTO `PAGES`(
     `NAME`, 
-    `IMG_SRC`
+    `IMG_SRC`,
+    `POSITION`
 ) VALUES (
     '%NAME%',
-    '%IMG_SRC%'
+    '%IMG_SRC%',
+    %POSITION%
 )

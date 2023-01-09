@@ -1,4 +1,5 @@
 UPDATE `PAGES` SET 
     %IMG%
-    `NAME` = '%NAME%'
+    `NAME` = '%NAME%',
+    `POSITION` = '%POSITION%'
 WHERE `ID` = %ID%
