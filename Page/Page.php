@@ -6,6 +6,30 @@
 
     class Page extends apiBaseClass {
          
+        function getMaxPosition() {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetMaxPositionPages.sql"))->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['POSITION'] + 1;
+            }
+            return 1;
+        }
+
+        function getPosition($id) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetPositionPages.sql"))->replace("%ID%", $id)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['POSITION'];
+            }
+            return 0;
+        }
+        
+        function getImgSrc($id) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetImgSrcPage.sql"))->replace("%ID%", $id)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['IMG_SRC'];
+            }
+            throw new InvalidArgumentException('Несуществующий id страницы');;
+        }
+
         function get_page($getData, $postData) {
             $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetPages.sql"))->getSql());
             $myArray = array();
@@ -25,20 +49,16 @@
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
             }
 
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetMaxPositionPages.sql"))->getSql());
-            $pos = 0;
-            if ($row = $result->fetch_assoc()) {
-                $pos = $row['POSITION'] + 1;
-            }
+            $pos = $this->getMaxPosition();
 
             if (!empty($postObject->position) && $pos > $postObject->position) {
                 $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionPage.sql"))
-                                                                        ->replace("%POSITION%", $postObject->position)
+                                                                        ->replace("%FIRST_POSITION%", $postObject->position)
+                                                                        ->replace("%SECOND_POSITION%", $pos)
+                                                                        ->replace("%OPERATION%", "+")
                                                                         ->getSql());  
                 $pos = $postObject->position;                                                                           
             }
-
-            echo $pos;
 
             $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/AddPage.sql"))
                                                                         ->replace("%NAME%", $postObject->name)
@@ -51,6 +71,14 @@
             if (!isset($getData['id'])) {
                 throw new InvalidArgumentException('Не указан id страницы');
             }
+            $filepath = "../img/" . $this->getImgSrc($getData['id']);
+            unlink($filepath);
+
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionPage.sql"))
+                                                                        ->replace("%FIRST_POSITION%", $this->getPosition($getData['id']) + 1)
+                                                                        ->replace("%SECOND_POSITION%", $this->getMaxPosition())
+                                                                        ->replace("%OPERATION%", "-")
+                                                                        ->getSql());  
 
             $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/DeletePage.sql"))->replace('%ID%', $getData['id'])->getSql());
         }
@@ -61,27 +89,55 @@
             }
 
             if (empty($postData)) {
-                throw new InvalidArgumentException('Не указаны данные страницы');
+                $result = $this->mySQLWorker->connectLink->query($sql = (new SqlScript("/Page/sql/UpdateVisibility.sql"))
+                                ->replace("%ID%", $getData['id'])
+                                ->getSql());
+                return;
             }
 
             $postObject = json_decode($postData);
-            
+
             $imgPath = null;
-            if (!empty($postObject->img)) {
+            if (isset($postObject->img)) {
+                
+                $filepath = "../img/" . $this->getImgSrc($getData['id']);
+                unlink($filepath);
+
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
             }
             
+            $pos = $this->getPosition($getData['id']);
+            $oldPos = $this->getPosition($getData['id']);
+            if (!empty($postObject->newPosition)) {
+                if ($postObject->newPosition == $oldPos) {
+                    throw new InvalidArgumentException('Новая позиция не должна быть равна старой');
+                }
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionPage.sql"))
+                                                                        ->replace("%FIRST_POSITION%", min($oldPos, $postObject->newPosition))
+                                                                        ->replace("%SECOND_POSITION%", max($oldPos, $postObject->newPosition))
+                                                                        ->replace("%OPERATION%", $oldPos > $postObject->newPosition ? "+" : "-")
+                                                                        ->getSql());  
+                $pos = $postObject->newPosition;                                                                           
+            }
+            
+            $name = !empty($postObject->name) ? $postObject->name : null;
             $sql = (new SqlScript("/Page/sql/UpdatePage.sql"))
-                                ->replace("%NAME%", $postObject->name)
-                                ->replace("%ID%", $getData['id']
-                                ->replace("%POSITION%", $postObject->position));
+                                ->replace("%ID%", $getData['id']);
 
+                                
+           
+
+            if ($name != null) {
+                $sql->replace("%NAME%", "`NAME` = '" . $name . "'". ($imgPath != null ? "," : ""));
+            } else {
+                $sql->replace("%NAME%", "");
+            }
+            
             if ($imgPath != null) {
-                $sql->replace("%IMG%", "`IMG_SRC` = '" . $imgPath . "',");
+                $sql->replace("%IMG%", "`IMG_SRC` = '" . $imgPath . "'" );
             } else {
                 $sql->replace("%IMG%", "");
             }
-
 
             $result = $this->mySQLWorker->connectLink->query($sql->getSql());  
 
