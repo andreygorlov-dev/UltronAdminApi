@@ -1,8 +1,14 @@
 <?php
     require_once('../SqlScript.php');
+    require_once('../PageType/PageType.php');
 
-    ini_set('display_errors', 0);
+    ini_set('display_errors', 1);
     error_reporting(E_ALL);
+
+    class CardResponse {
+        public $type;
+        public $cards = array();
+    }
 
     class Card extends apiBaseClass {
          
@@ -11,12 +17,16 @@
                 throw new InvalidArgumentException('Не указан id страницы');
             }
 
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("\\Card\\sql\\GetCards.sql"))->replace('%ID%', $getData['id'])->getSql());
-            $myArray = array();
+            $cardResponse = new CardResponse();
+            $pageType = new PageType();
+
+            $cardResponse->type = $pageType->get_pagetype($getData, $postData);
+
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetCards.sql"))->replace('%ID%', $getData['id'])->getSql());
             while($row = $result->fetch_assoc()) {
-                $myArray[] = $row;
+                $cardResponse->cards = $row;
             }
-            return $myArray;
+            return $cardResponse;
         }
 
         function post_card($getData, $postData) {
@@ -28,7 +38,7 @@
             if (!empty($postObject->img)) {
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
             }
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("\\Card\\sql\\AddCard.sql"))
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/AddCard.sql"))
                                                                         ->replace("%TITLE%", $postObject->title)
                                                                         ->replace("%DESCRIPTION%", $postObject->description)
                                                                         ->replace("%IMG_SRC%", $imgPath)
@@ -42,7 +52,7 @@
                 throw new InvalidArgumentException('Не указан id карточки');
             }
 
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("\\Card\\sql\\DeleteCard.sql"))->replace('%ID%', $getData['id'])->getSql());
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/DeleteCard.sql"))->replace('%ID%', $getData['id'])->getSql());
         }
 
         function put_card($getData, $postData) {
@@ -61,7 +71,7 @@
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
             }
             
-            $sql = (new SqlScript("\\Card\\sql\\UpdateCard.sql"))
+            $sql = (new SqlScript("/Card/sql/UpdateCard.sql"))
                                 ->replace("%TITLE%", $postObject->title)
                                 ->replace("%DESCRIPTION%", $postObject->description)
                                 ->replace("%VIDEO_SRC%", $postObject->videoSrc)

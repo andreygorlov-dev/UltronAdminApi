@@ -19,6 +19,12 @@
                 throw new InvalidArgumentException('Не указан id страницы');
             }
 
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/PageType/sql/GetPageType.sql"))->replace("%ID%", $getData['id'])->getSql());
+            $myArray = array();
+            while($row = $result->fetch_assoc()) {
+                return $row;
+            }
+            return null;
         }
 
         function post_pagetype($getData, $postData) {
@@ -49,7 +55,8 @@
                 default:
                     break;        
             }
-            $result = $this->mySQLWorker->connectLink->query($sql->replace("%TYPE%", $postObject->type)->getSql());
+            
+            $result = $this->mySQLWorker->connectLink->query($sql->replace("%TYPE%", $postObject->type)->replace("'%TITLE%'", $postObject->title)->getSql());
             $last_id = mysqli_insert_id($this->mySQLWorker->connectLink);
 
             $result = $this->mySQLWorker->connectLink->query((new SqlScript("/PageType/sql/UpdateTypePage.sql"))
@@ -63,7 +70,7 @@
         }
 
         function put_pagetype($getData, $postData) {
-        
+            
         }
         
     }
