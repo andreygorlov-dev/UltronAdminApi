@@ -1,7 +1,7 @@
 <?php
     require_once('../SqlScript.php');
 
-    ini_set('display_errors', 0);
+    ini_set('display_errors', 1);
     error_reporting(E_ALL);
 
     class Page extends apiBaseClass {
@@ -96,7 +96,7 @@
             }
 
             $postObject = json_decode($postData);
-
+            
             $imgPath = null;
             if (isset($postObject->img)) {
                 
@@ -121,16 +121,24 @@
             }
             
             $name = !empty($postObject->name) ? $postObject->name : null;
+            $position = isset($postObject->newPosition) ? $postObject->newPosition : null;
+            
+            
+            
             $sql = (new SqlScript("/Page/sql/UpdatePage.sql"))
                                 ->replace("%ID%", $getData['id']);
 
                                 
-           
-
             if ($name != null) {
-                $sql->replace("%NAME%", "`NAME` = '" . $name . "'". ($imgPath != null ? "," : ""));
+                $sql->replace("%NAME%", "`NAME` = '" . $name . "'". (($position != null || $imgPath != null) ? "," : ""));
             } else {
                 $sql->replace("%NAME%", "");
+            }
+            
+            if ($position != null) {
+                $sql->replace("%POSITION%", "`POSITION` = '" . $position . "'" . ($imgPath != null ? "," : ""));
+            } else {
+                $sql->replace("%POSITION%", "");
             }
             
             if ($imgPath != null) {
@@ -138,7 +146,9 @@
             } else {
                 $sql->replace("%IMG%", "");
             }
-
+            
+            echo $sql->getSql();
+            
             $result = $this->mySQLWorker->connectLink->query($sql->getSql());  
 
         }
