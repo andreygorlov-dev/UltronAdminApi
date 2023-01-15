@@ -12,39 +12,79 @@
 
     class Card extends apiBaseClass {
          
+        function getMaxPosition($idPage) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetMaxPositionCard.sql"))->replace('%ID_PAGE%', $idPage)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['POSITION'] + 1;
+            }
+            return 1;
+        }
+
         function get_card($getData, $postData) {
-            if (!isset($getData['id'])) {
-                throw new InvalidArgumentException('Не указан id страницы');
+            if (!isset($getData['id']) || !isset($getData['type'])) {
+                throw new InvalidArgumentException('Не указаны параметры запроса');
             }
 
-            $cardResponse = new CardResponse();
-            $pageType = new PageType();
-
-            $cardResponse->type = $pageType->get_pagetype($getData, $postData);
-
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetCards.sql"))->replace('%ID%', $getData['id'])->getSql());
-            while($row = $result->fetch_assoc()) {
-                $cardResponse->cards = $row;
+            if ($getData['type'] === 'preview') {
+                $cardResponse = new CardResponse();
+                $pageType = new PageType();
+                $cardResponse->type = $pageType->get_pagetype($getData, $postData);
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetCardsPreview.sql"))->replace('%ID%', $getData['id'])->getSql());
+                while($row = $result->fetch_assoc()) {
+                    $cardResponse->cards[] = $row;
+                }
+                return $cardResponse;
+            } else if ($getData['type'] === 'content') {
+                //todo добавить получения информации карточки
+            } else {
+                throw new InvalidArgumentException('Ошибка в праметре type');
             }
-            return $cardResponse;
         }
 
         function post_card($getData, $postData) {
             if (empty($postData)) {
                 throw new InvalidArgumentException('Не указаны данные элемента');
             }
-            $postObject = json_decode($postData);
-            $imgPath = null;
-            if (!empty($postObject->img)) {
-                $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+            if (!isset($getData['id']) || !isset($getData['type'])) {
+                throw new InvalidArgumentException('Не указаны параметры запроса');
             }
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/AddCard.sql"))
-                                                                        ->replace("%TITLE%", $postObject->title)
-                                                                        ->replace("%DESCRIPTION%", $postObject->description)
-                                                                        ->replace("%IMG_SRC%", $imgPath)
-                                                                        ->replace("%VIDEO_SRC%", $postObject->videoSrc)
-                                                                        ->replace("%ID_PAGE%", $postObject->idPage)
-                                                                        ->getSql());   
+            
+            $postObject = json_decode($postData);
+
+            if ($getData['type'] === 'preview') {
+                $pageType = new PageType();
+                $type = $pageType->get_pagetype($getData, $postData);
+
+                $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+
+                $pos = $this->getMaxPosition($getData['id']);
+                if (!empty($postObject->position) && $pos > $postObject->position) {
+                    $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionCard.sql"))
+                                                                            ->replace("%FIRST_POSITION%", $postObject->position)
+                                                                            ->replace("%SECOND_POSITION%", $pos)
+                                                                            ->replace("%OPERATION%", "+")
+                                                                            ->replace("%ID_PAGE%", $getData['id'])
+                                                                            ->getSql());  
+                    $pos = $postObject->position;                                                                           
+                }
+
+                $sql = (new SqlScript("/Card/sql/AddCard.sql"))
+                            ->replace("%TITLE%", $postObject->title)
+                            ->replace("%IMG_SRC%", $imgPath)
+                            ->replace("%POSITION%", $pos)
+                            ->replace("%ID_PAGE%", $getData['id']);  
+                if ($type['TYPE'] == "4") {
+                    $sql->replace("%SRC%", $postObject->src);
+                } else {
+                    $sql->replace("'%SRC%'", "NULL");
+                }
+                $result = $this->mySQLWorker->connectLink->query($sql->getSql());
+            } else if ($getData['type'] === 'content') {
+                //todo добавить добавление информации карточки
+            } else {
+                throw new InvalidArgumentException('Ошибка в праметре type');
+            }
+
         }
 
         function delete_card($getData, $postData) {

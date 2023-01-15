@@ -1,13 +1,13 @@
 INSERT INTO `CARDS` ( 
-    `TITLE`, 
-    `DESCRIPTION`, 
-    `IMG_SRC`, 
-    `VIDEO_SRC`, 
+    `TITLE_PREVIEW`, 
+    `IMG_SRC_PREVIEW`, 
+    `SRC`,
+    `POSITION`,
     `ID_PAGE`
 ) VALUES (
     '%TITLE%', 
-    '%DESCRIPTION%', 
     '%IMG_SRC%', 
-    '%VIDEO_SRC%', 
+    '%SRC%',
+    %POSITION%,
     %ID_PAGE%
 )

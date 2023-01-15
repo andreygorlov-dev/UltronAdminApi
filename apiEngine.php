@@ -2,8 +2,8 @@
     require_once('MySQLiWorker.php');
     require_once ('apiConstants.php');
     
-    ini_set('display_errors', 0);
-    ini_set('display_startup_errors', 0);
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
     
     class APIEngine {
@@ -16,7 +16,7 @@
         //Статичная функция для подключения API из других API при необходимости в методах
         static function getApiEngineByName($apiName) {
             require_once 'apiBaseClass.php';
-            require_once dirname(__FILE__). '\\' . $apiName . '\\' . $apiName . '.php';
+            require_once dirname(__FILE__). '/' . $apiName . '/' . $apiName . '.php';
             $apiClass = new $apiName();
             return $apiClass;
         }
@@ -33,14 +33,13 @@
     
         //Создаем JSON ответа
         function createDefaultJson() {
-            $retObject = json_decode('{}');
-            $response = APIConstants::$RESPONSE;
             return json_decode('{}');
         }
         
         //Вызов функции по переданным параметрам в конструкторе
         function callApiFunction() {
-            if (file_exists(dirname(__FILE__). '\\' . $this->apiName . '\\' . $this->apiName . '.php')) {
+            $resultFunctionCall = $this->createDefaultJson();
+            if (file_exists(dirname(__FILE__). '/' . $this->apiName . '/' . $this->apiName . '.php')) {
                 $apiClass = APIEngine::getApiEngineByName($this->apiName);//Получаем объект API
                 $apiReflection = new ReflectionClass($this->apiName);//Через рефлексию получем информацию о классе объекта
                 try {
