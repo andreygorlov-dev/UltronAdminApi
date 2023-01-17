@@ -1,0 +1,56 @@
+[
+    {
+        "element" : "text",
+        "value" : "Сторка 1",
+        "position" : "1",
+        "visible" : "1",
+        "id" : "1"
+    }, 
+    {
+        "element" : "text",
+        "value" : "Сторка 2",
+        "position" : "2",
+        "visible" : "1",
+        "id" : "2"
+    }, 
+    {
+        "element" : "img",
+        "value" : "asdasd.png",
+        "position" : "3",
+        "visible" : "1",
+        "id" : "4"
+    }, 
+    {
+        "element" : "img",
+        "value" : "asdasdsad.png",
+        "position" : "4",
+        "visible" : "1",
+        "id" : "4"
+    }, 
+    {
+        "element" : "video",
+        "value" : "www.adasdasd.com",
+        "position" : "5",
+        "visible" : "1",
+        "id" : "5"
+    }
+]
+
+[
+    {
+        "COLUMN1" : "Текст11",
+        "COLUMN2" : "Текст12",
+    },
+    {
+        "COLUMN1" : "Текст21",
+        "COLUMN2" : "Текст22",
+    },
+    {
+        "COLUMN1" : "Текст31",
+        "COLUMN2" : "Текст32",
+    },
+    {
+        "COLUMN1" : "Текст41",
+        "COLUMN2" : "Текст42",
+    }
+]

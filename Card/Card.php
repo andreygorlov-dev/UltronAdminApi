@@ -10,10 +10,38 @@
         public $cards = array();
     }
 
+    class ElemList {
+        public $VALUE;
+        public $IMG;
+
+        function __construct($value, $img) {
+            $this->VALUE = $value;
+            $this->IMG = $img;
+        }
+    }
+
+    class Table {
+        public $COLUMN1;
+        public $COLUMN2;
+
+        function __construct($column1, $column2) {
+            $this->COLUMN1 = $column1;
+            $this->COLUMN2 = $column2;
+        }
+    }
+
     class Card extends apiBaseClass {
          
         function getMaxPosition($idPage) {
             $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetMaxPositionCard.sql"))->replace('%ID_PAGE%', $idPage)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['POSITION'] + 1;
+            }
+            return 1;
+        }
+
+        function getMaxPositionContent($idCard) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetMaxPositionCardContent.sql"))->replace('%ID_CARD%', $idCard)->getSql());
             if ($row = $result->fetch_assoc()) {
                 return $row['POSITION'] + 1;
             }
@@ -35,7 +63,22 @@
                 }
                 return $cardResponse;
             } else if ($getData['type'] === 'content') {
-                //todo добавить получения информации карточки
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetCardsContent.sql"))->replace('%ID_CARD%', $getData['id'])->getSql());
+                $response = array();
+                while($row = $result->fetch_assoc()) {
+                    $myArray = array();
+                    $myArray['ID'] = $row['ID'];
+                    if ($row['TYPE'] === 'ELEM_LIST' || $row['TYPE'] === "TEXT3" || $row['TYPE'] === "TABLE") {
+                        $myArray['VALUE'] = json_decode($row['VALUE']);
+                    } else {
+                        $myArray['VALUE'] = $row['VALUE'];
+                    }
+                    $myArray['TYPE'] = $row['TYPE'];
+                    $myArray['POSITION'] = $row['POSITION'];
+                    $myArray['VISIBLE'] = $row['VISIBLE'];
+                    $response[] = $myArray;
+                }
+                return $response;
             } else {
                 throw new InvalidArgumentException('Ошибка в праметре type');
             }
@@ -51,13 +94,13 @@
             
             $postObject = json_decode($postData);
 
+
             if ($getData['type'] === 'preview') {
+                $pos = $this->getMaxPosition($getData['id']);
                 $pageType = new PageType();
                 $type = $pageType->get_pagetype($getData, $postData);
 
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
-
-                $pos = $this->getMaxPosition($getData['id']);
                 if (!empty($postObject->position) && $pos > $postObject->position) {
                     $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionCard.sql"))
                                                                             ->replace("%FIRST_POSITION%", $postObject->position)
@@ -79,8 +122,39 @@
                     $sql->replace("'%SRC%'", "NULL");
                 }
                 $result = $this->mySQLWorker->connectLink->query($sql->getSql());
-            } else if ($getData['type'] === 'content') {
-                //todo добавить добавление информации карточки
+            } else if ($getData['type'] === 'content') {     
+                $pos = $this->getMaxPositionContent($getData['id']);           
+                $value = null;
+                if ($postObject->type === 'IMG1' || $postObject->type === 'IMG2') {
+                    $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+                    $value = $imgPath;
+                } else if ($postObject->type === 'ELEM_LIST') {
+                    $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+                    $elem = new ElemList($postObject->value ,apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension));
+                    $value = json_encode($elem);
+                } else if ($postObject->type === 'TABLE') {
+                    $elem = new ElemList($postObject->value ,apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension));
+                    $value = json_encode($elem);
+                } else {
+                    $value = $postObject->value;
+                }
+
+                if (!empty($postObject->position) && $pos > $postObject->position) {
+                    $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionContentCard.sql"))
+                                                                            ->replace("%FIRST_POSITION%", $postObject->position)
+                                                                            ->replace("%SECOND_POSITION%", $pos)
+                                                                            ->replace("%OPERATION%", "+")
+                                                                            ->replace("%ID_CARD%", $getData['id'])
+                                                                            ->getSql());  
+                    $pos = $postObject->position;                                                                           
+                }
+
+                $sql = (new SqlScript("/Card/sql/AddContentCard.sql"))
+                            ->replace("%VALUE%", $value)
+                            ->replace("%TYPE%", $postObject->type)
+                            ->replace("%POSITION%", $pos)
+                            ->replace("%ID_CARD%", $getData['id']); 
+                $result = $this->mySQLWorker->connectLink->query($sql->getSql());
             } else {
                 throw new InvalidArgumentException('Ошибка в праметре type');
             }

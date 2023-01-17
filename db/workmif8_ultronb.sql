@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: localhost
--- Время создания: Янв 15 2023 г., 21:28
+-- Время создания: Янв 17 2023 г., 21:50
 -- Версия сервера: 5.7.21-20-beget-5.7.21-20-1-log
 -- Версия PHP: 5.6.40
 
@@ -27,17 +27,13 @@ SET time_zone = "+00:00";
 --
 -- Структура таблицы `CARDS`
 --
--- Создание: Янв 15 2023 г., 18:01
--- Последнее обновление: Янв 15 2023 г., 18:27
+-- Создание: Янв 17 2023 г., 17:09
 --
 
 DROP TABLE IF EXISTS `CARDS`;
 CREATE TABLE `CARDS` (
   `ID` int(11) NOT NULL,
   `TITLE` varchar(2000) NOT NULL,
-  `DESCRIPTION` varchar(2000) NOT NULL,
-  `IMG_SRC` varchar(2000) NOT NULL,
-  `VIDEO_SRC` varchar(2000) NOT NULL,
   `ID_PAGE` int(11) NOT NULL,
   `IMG_SRC_PREVIEW` varchar(2000) NOT NULL,
   `TITLE_PREVIEW` varchar(2000) NOT NULL,
@@ -50,17 +46,59 @@ CREATE TABLE `CARDS` (
 -- Дамп данных таблицы `CARDS`
 --
 
-INSERT INTO `CARDS` (`ID`, `TITLE`, `DESCRIPTION`, `IMG_SRC`, `VIDEO_SRC`, `ID_PAGE`, `IMG_SRC_PREVIEW`, `TITLE_PREVIEW`, `SRC`, `POSITION`, `VISIBILITY`) VALUES
-(25, 'Заголовок тест', 'Описание тест', 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 6, 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'Заголовок превью тест', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 1, 1),
-(26, 'Заголовок тест', 'Описание тест', 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 6, 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'Заголовок превью тест', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 4, 1),
-(27, 'Заголовок тест', 'Описание тест', 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 6, 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'Заголовок превью тест', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 5, 1),
-(28, 'Заголовок тест', 'Описание тест', 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 6, 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'Заголовок превью тест', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 6, 1),
-(29, 'Заголовок тест', 'Описание тест', 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 6, 'c560ade1a9ae4640559a90cb81f9a9f0683e06e9cc9d33767da08d0361548481.jpg', 'Заголовок превью тест', 'https://www.youtube.com/watch?v=LIT4I2Rd82E&ab_channel=%D0%9F%D0%9E%D0%96%D0%98%D0%9B%D0%9E%D0%99%D0%90%D0%9B%D0%95%D0%9A%D0%A1%D0%95%D0%99', 7, 1),
-(39, '', '', '', '', 6, 'b3e9389d104d48b4b715508939819491.png', 'Заголовок Превью 1', 'https://www.youtube.com/watch?v=DbrVDMPFoTc&ab_channel=PolinaPoliakova', 8, 1),
-(40, '', '', '', '', 6, '28d8191a0eb68e0cf5b49c772ea31499.png', 'Заголовок Превью 1', 'https://www.youtube.com/watch?v=DbrVDMPFoTc&ab_channel=PolinaPoliakova', 3, 1),
-(41, '', '', '', '', 6, '5deef7499067ae2ba5edd771e1882c8f.png', 'Заголовок Превью 2', 'https://www.youtube.com/watch?v=DbrVDMPFoTc&ab_channel=PolinaPoliakova', 2, 1),
-(42, '', '', '', '', 6, '4d5d6f2231eff3d6fa0b9713d8d13d11.png', '', '', 9, 1),
-(43, '', '', '', '', 6, '16ddc3beea2c259195c26ced7b0e4f23.png', 'Загоgeag2ловок', '', 10, 1);
+INSERT INTO `CARDS` (`ID`, `TITLE`, `ID_PAGE`, `IMG_SRC_PREVIEW`, `TITLE_PREVIEW`, `SRC`, `POSITION`, `VISIBILITY`) VALUES
+(51, '', 63, '343ad8458753f1a5050474a17c6f04df.png', 'Заголовокe', NULL, 1, 1),
+(52, '', 63, '42859974cefcc6a34601d9cf116a7083.png', 'Посмотрите видео  об Автоматизации', NULL, 2, 1),
+(53, '', 64, '500f166feb0ade015549bc6654218eb3.png', 'Как работает автоматизация', NULL, 1, 1),
+(54, '', 65, '3ddb957a6872d1c1946be73ac6a1a556.png', 'Разработка мета вселенной', '', 1, 1),
+(55, '', 65, '2749ad18f6dc17d86480063566e18d36.png', 'Разработка мета вселенной2', '', 2, 1),
+(56, '', 66, '0fcd4c2db8b9bfbd5946f70b7d4a7e44.png', 'Суть блокчейна, почему Ultron?', NULL, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `CARDS_CONTENT`
+--
+-- Создание: Янв 17 2023 г., 18:40
+-- Последнее обновление: Янв 17 2023 г., 18:45
+--
+
+DROP TABLE IF EXISTS `CARDS_CONTENT`;
+CREATE TABLE `CARDS_CONTENT` (
+  `ID` int(11) NOT NULL,
+  `VALUE` varchar(2000) NOT NULL,
+  `TYPE` varchar(2000) NOT NULL,
+  `POSITION` int(11) DEFAULT NULL,
+  `VISIBLE` int(11) NOT NULL DEFAULT '1',
+  `ID_CARD` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Дамп данных таблицы `CARDS_CONTENT`
+--
+
+INSERT INTO `CARDS_CONTENT` (`ID`, `VALUE`, `TYPE`, `POSITION`, `VISIBLE`, `ID_CARD`) VALUES
+(1, '{\"TITLE\" : \"Заголовок\", \"VALUE\" :\"Lorem ipsum dolor sit amet consectetur adipisicing elit.Blanditiis tempora provident sapiente adipisci molestias, officiis veritatis a earum alias error.\"}', 'TEXT3', 1, 1, 51),
+(2, '{\"VALUE\" : \"text text\", \"IMG\": \"42859974cefcc6a34601d9cf116a7083.png\"}', 'ELEM_LIST', 10, 1, 51),
+(3, '{\"VALUE\" : \"text text text\", \"IMG\": \"42859974cefcc6a34601d9cf116a7083.png\"}', 'ELEM_LIST', 11, 1, 51),
+(4, 'https://www.youtube.com/watch?v=JRWw6jpKquo&list=RD1IyU3VXDAIk&index=4&ab_channel=CalebHyles', 'VIDEO', 12, 1, 51),
+(5, '42859974cefcc6a34601d9cf116a7083.png', 'IMG1', 13, 1, 51),
+(6, 'TEXT5', 'TEXT1', 14, 1, 51),
+(7, 'f97106356826f54b04f6d730b1e6d907.png', 'IMG1', 14, 1, 51),
+(8, '67d26e73a3eff9c641a81d0a4d0f1eaf.png', 'IMG2', 14, 1, 51),
+(9, 'de65dc9c9d7740f9f82f01eecfe61dd3.png', 'IMG2', 14, 1, 51),
+(10, '3d1c60a63151d06b2af549fe63d2b067.png', 'IMG2', 15, 1, 51),
+(15, 'e577044372983faf38522472a8302b5b.png', 'IMG2', 9, 1, 51),
+(16, 'dsfdsf', 'TEXT2', 8, 1, 51),
+(17, 'TEXT1', 'TEXT1', 7, 1, 51),
+(18, 'https://www.youtube.com/watch?v=JRWw6jpKquo&list=RD1IyU3VXDAIk&index=4&ab_channel=CalebHyles', 'VIDEO', 6, 1, 51),
+(19, '{\"VALUE\" : \"text text\", \"IMG\": \"42859974cefcc6a34601d9cf116a7083.png\"}', 'ELEM_LIST', 5, 1, 51),
+(20, '{\"VALUE\" : \"text text\", \"IMG\": \"42859974cefcc6a34601d9cf116a7083.png\"}', 'ELEM_LIST', 4, 1, 51),
+(21, '{\"VALUE\" : \"text text\", \"IMG\": \"42859974cefcc6a34601d9cf116a7083.png\"}', 'ELEM_LIST', 3, 1, 51),
+(22, '{\"VALUE\":\"text1\",\"IMG\":\"9edc0dc4c02a7c0189ed6cd632ed6303.png\"}', 'ELEM_LIST', 2, 1, 51),
+(23, 'TEXT1', 'TITLE', NULL, 1, 51),
+(24, 'TEXT1', 'SUBTITLE', 16, 1, 51),
+(25, '[{\"COLUMN1\" : \"Текст11\", \"COLUMN2\" : \"Текст12\"},{\"COLUMN1\" : \"Текст21\",\"COLUMN2\" : \"Текст22\"},{\"COLUMN1\" : \"Текст31\",\"COLUMN2\" : \"Текст32\"},{\"COLUMN1\" : \"Текст41\",\"COLUMN2\" : \"Текст42\"}]', 'TABLE', 2, 1, 51);
 
 -- --------------------------------------------------------
 
@@ -68,7 +106,7 @@ INSERT INTO `CARDS` (`ID`, `TITLE`, `DESCRIPTION`, `IMG_SRC`, `VIDEO_SRC`, `ID_P
 -- Структура таблицы `PAGES`
 --
 -- Создание: Янв 10 2023 г., 20:39
--- Последнее обновление: Янв 15 2023 г., 17:56
+-- Последнее обновление: Янв 16 2023 г., 16:47
 --
 
 DROP TABLE IF EXISTS `PAGES`;
@@ -86,14 +124,11 @@ CREATE TABLE `PAGES` (
 --
 
 INSERT INTO `PAGES` (`ID`, `NAME`, `IMG_SRC`, `POSITION`, `VISIBILITY`, `ID_PAGE_TYPE`) VALUES
-(6, 'С ЧЕГО НАЧАТЬ', '1.png', 1, 1, 10),
-(7, 'ХОЧУ ВСТУПИТЬ', '2.png', 2, 1, 12),
-(8, 'ДЛЯ ПРОДВИЖЕНИЯ', '3.png', 3, 1, 13),
-(47, '213125432', 'c384a177cf4ae57898749e216375b3e9.jpg', 4, 1, NULL),
-(48, 'Заголовок5', '7f053ab377965c8b46b6c806ee9f3ad6.png', 5, 1, 5),
-(49, 'Заголовок4', '8563ed01e5f5ed519c3e9dca632d3be9.jpg', 8, 1, 7),
-(57, 'Заголовок23', '8cfeed8030ba56b314727ec1d0c65c54.jpg', 7, 1, NULL),
-(58, 'Заголовок232', 'a0455acd17c9ad0ab3f9d2c332f6f804.jpg', 6, 1, NULL);
+(63, 'с чего начать', '820634d5ec8d0d83de15bdda0881ba4d.png', 1, 1, 20),
+(64, 'для продвижения', 'a0f2fb681ed5b84863f880826daa72a1.png', 2, 1, 21),
+(65, 'РЕСУРСЫ ULTRON', 'b16d6969f8464d33e3d865634a2600e3.png', 3, 1, 22),
+(66, 'Презентации ультрон', '6914d0a3e17e74e471731f54096cdf38.png', 4, 1, 23),
+(70, 'Заголовок', 'ede957fe724ad2df2e9556c5b3e397e2.png', 5, 1, 27);
 
 -- --------------------------------------------------------
 
@@ -101,7 +136,7 @@ INSERT INTO `PAGES` (`ID`, `NAME`, `IMG_SRC`, `POSITION`, `VISIBILITY`, `ID_PAGE
 -- Структура таблицы `PAGES_TYPE`
 --
 -- Создание: Янв 13 2023 г., 15:42
--- Последнее обновление: Янв 15 2023 г., 16:33
+-- Последнее обновление: Янв 16 2023 г., 16:47
 --
 
 DROP TABLE IF EXISTS `PAGES_TYPE`;
@@ -128,7 +163,21 @@ INSERT INTO `PAGES_TYPE` (`ID`, `SUBTITLE`, `IMG_SRC`, `TYPE`, `TITLE`) VALUES
 (10, '', '0bc8eb3deb1fc7625e0fb0807594083a.png', 4, 'Куку2'),
 (11, 'eaaaaa', NULL, 2, 'gaega'),
 (12, 'eaaaaa', NULL, 2, 'gaega'),
-(13, NULL, NULL, 1, 'eagaeg');
+(13, NULL, NULL, 1, 'eagaeg'),
+(14, '21455125', NULL, 3, 'geagaeg'),
+(15, '', NULL, 2, ''),
+(16, NULL, '4b7e4b5a0d22aef3d2e233d15aeb7617.', 4, ''),
+(17, '', NULL, 3, ''),
+(18, 'уууу', NULL, 2, 'нос'),
+(19, NULL, NULL, 1, 'ыыыы'),
+(20, 'Изучите внимательно, ведь старт всегда самое важное!', NULL, 2, 'С ЧЕГО НАЧАТЬ?'),
+(21, NULL, NULL, 1, 'для продвижения'),
+(22, NULL, '0cd11d694d117dda48013a62e33944c5.', 4, 'РЕСУРСЫ ULTRON'),
+(23, 'Здесь мы собрали информацию о компании Ultron и маркетингового агентства Mavie.', NULL, 3, 'презентации ультрон'),
+(24, NULL, '900f8ded95d61e059e85cf58ab7e0c4e.', 4, 'geagaeg'),
+(25, NULL, 'ca89458652ec80bce24b887c076cb461.', 4, 'geag'),
+(26, NULL, '', 4, '222'),
+(27, NULL, 'e6171019e89a02a0c229424a81d79553.png', 4, '222');
 
 --
 -- Индексы сохранённых таблиц
@@ -140,6 +189,13 @@ INSERT INTO `PAGES_TYPE` (`ID`, `SUBTITLE`, `IMG_SRC`, `TYPE`, `TITLE`) VALUES
 ALTER TABLE `CARDS`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `cards_ibfk_1` (`ID_PAGE`);
+
+--
+-- Индексы таблицы `CARDS_CONTENT`
+--
+ALTER TABLE `CARDS_CONTENT`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `ID_CARD` (`ID_CARD`);
 
 --
 -- Индексы таблицы `PAGES`
@@ -162,19 +218,25 @@ ALTER TABLE `PAGES_TYPE`
 -- AUTO_INCREMENT для таблицы `CARDS`
 --
 ALTER TABLE `CARDS`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+
+--
+-- AUTO_INCREMENT для таблицы `CARDS_CONTENT`
+--
+ALTER TABLE `CARDS_CONTENT`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT для таблицы `PAGES`
 --
 ALTER TABLE `PAGES`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
 
 --
 -- AUTO_INCREMENT для таблицы `PAGES_TYPE`
 --
 ALTER TABLE `PAGES_TYPE`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
@@ -185,6 +247,12 @@ ALTER TABLE `PAGES_TYPE`
 --
 ALTER TABLE `CARDS`
   ADD CONSTRAINT `cards_ibfk_1` FOREIGN KEY (`ID_PAGE`) REFERENCES `PAGES` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `CARDS_CONTENT`
+--
+ALTER TABLE `CARDS_CONTENT`
+  ADD CONSTRAINT `CARDS_CONTENT_ibfk_1` FOREIGN KEY (`ID_CARD`) REFERENCES `CARDS` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `PAGES`

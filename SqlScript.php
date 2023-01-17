@@ -7,7 +7,7 @@
 
         function __construct($filePath) 
         {
-            $this->sql = file_get_contents(dirname(__FILE__). '\\' . $filePath);
+            $this->sql = file_get_contents(dirname(__FILE__) . $filePath);
             return $this;
         }
 
