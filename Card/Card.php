@@ -48,6 +48,22 @@
             return 1;
         }
 
+        function getPosition($id) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetPositionCards.sql"))->replace("%ID%", $id)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['POSITION'];
+            }
+            return 0;
+        }
+
+        function getPositionContent($id) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetPositionCardsContent.sql"))->replace("%ID%", $id)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['POSITION'];
+            }
+            return 0;
+        }
+
         function get_card($getData, $postData) {
             if (!isset($getData['id']) || !isset($getData['type'])) {
                 throw new InvalidArgumentException('Не указаны параметры запроса');
@@ -125,18 +141,26 @@
             } else if ($getData['type'] === 'content') {     
                 $pos = $this->getMaxPositionContent($getData['id']);           
                 $value = null;
-                if ($postObject->type === 'IMG1' || $postObject->type === 'IMG2') {
-                    $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
-                    $value = $imgPath;
-                } else if ($postObject->type === 'ELEM_LIST') {
-                    $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
-                    $elem = new ElemList($postObject->value ,apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension));
-                    $value = json_encode($elem);
-                } else if ($postObject->type === 'TABLE') {
-                    $elem = new ElemList($postObject->value ,apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension));
-                    $value = json_encode($elem);
-                } else {
-                    $value = $postObject->value;
+                switch ($postObject->type) {
+                    case 'IMG1':
+                    case 'IMG2':
+                        $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+                        $value = $imgPath;
+                        break;
+                    case 'ELEM_LIST':
+                        $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+                        $elem = new ElemList($postObject->value ,apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension));
+                        $value = json_encode($elem);
+                        break;   
+                    case 'TABLE':
+                        $value = json_encode($postObject->table);
+                        break;     
+                    case 'TEXT3':
+                        $value = json_encode($postObject->textType);
+                        break;   
+                    default:
+                        $value = $postObject->value;
+                        break;
                 }
 
                 if (!empty($postObject->position) && $pos > $postObject->position) {
@@ -162,11 +186,28 @@
         }
 
         function delete_card($getData, $postData) {
-            if (!isset($getData['id'])) {
-                throw new InvalidArgumentException('Не указан id карточки');
+            if (!isset($getData['id']) || !isset($getData['idParent'])) {
+                throw new InvalidArgumentException('Не указан id');
             }
 
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/DeleteCard.sql"))->replace('%ID%', $getData['id'])->getSql());
+            if ($getData['type'] === 'preview') {
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionCard.sql"))
+                                                                        ->replace("%FIRST_POSITION%", $this->getPosition($getData['id']) + 1)
+                                                                        ->replace("%SECOND_POSITION%", $this->getMaxPosition($getData['idParent']))
+                                                                        ->replace("%OPERATION%", "-")
+                                                                        ->getSql());  
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/DeleteCard.sql"))->replace('%ID%', $getData['id'])->getSql());
+            } else if ($getData['type'] === 'content') { 
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionContentCard.sql.sql"))
+                                                                        ->replace("%FIRST_POSITION%", $this->getPosition($getData['id']) + 1)
+                                                                        ->replace("%SECOND_POSITION%", $this->getMaxPosition($getData['idParent']))
+                                                                        ->replace("%OPERATION%", "-")
+                                                                        ->getSql());  
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/DeleteElement.sql"))->replace('%ID%', $getData['id'])->getSql());
+            } else {
+                throw new InvalidArgumentException('Ошибка в праметре type');
+            }
+
         }
 
         function put_card($getData, $postData) {
