@@ -1,6 +1,6 @@
 UPDATE `CARDS` SET 
-    `TITLE` = '%TITLE%',
-    `DESCRIPTION` = '%DESCRIPTION%',
+    %TITLE%
+    %POSITION%
     %IMG%
-    `VIDEO_SRC` = '%VIDEO_SRC%'
+    %SRC%
 WHERE `ID` = %ID%

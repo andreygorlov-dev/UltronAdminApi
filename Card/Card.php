@@ -49,7 +49,7 @@
         }
 
         function getPosition($id) {
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetPositionCards.sql"))->replace("%ID%", $id)->getSql());
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetPositionCards.sql"))->replace("%ID%", $id)->getSql());
             if ($row = $result->fetch_assoc()) {
                 return $row['POSITION'];
             }
@@ -57,11 +57,19 @@
         }
 
         function getPositionContent($id) {
-            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/GetPositionCardsContent.sql"))->replace("%ID%", $id)->getSql());
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetPositionCardsContent.sql"))->replace("%ID%", $id)->getSql());
             if ($row = $result->fetch_assoc()) {
                 return $row['POSITION'];
             }
             return 0;
+        }
+
+        function getImgSrc($id) {
+            $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/GetImgSrcCard.sql"))->replace("%ID%", $id)->getSql());
+            if ($row = $result->fetch_assoc()) {
+                return $row['IMG_SRC_PREVIEW'];
+            }
+            throw new InvalidArgumentException('Несуществующий id страницы');;
         }
 
         function get_card($getData, $postData) {
@@ -91,7 +99,7 @@
                     }
                     $myArray['TYPE'] = $row['TYPE'];
                     $myArray['POSITION'] = $row['POSITION'];
-                    $myArray['VISIBLE'] = $row['VISIBLE'];
+                    $myArray['VISIBILITY'] = $row['VISIBILITY'];
                     $response[] = $myArray;
                 }
                 return $response;
@@ -191,17 +199,23 @@
             }
 
             if ($getData['type'] === 'preview') {
-                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionCard.sql"))
+                $filepath = "../img/" . $this->getImgSrc($getData['id']);
+                
+                unlink($filepath);
+                
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionCard.sql"))
                                                                         ->replace("%FIRST_POSITION%", $this->getPosition($getData['id']) + 1)
                                                                         ->replace("%SECOND_POSITION%", $this->getMaxPosition($getData['idParent']))
+                                                                        ->replace("%ID_PAGE%", $getData['idParent'])
                                                                         ->replace("%OPERATION%", "-")
                                                                         ->getSql());  
                 $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/DeleteCard.sql"))->replace('%ID%', $getData['id'])->getSql());
             } else if ($getData['type'] === 'content') { 
-                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Page/sql/UpdatePositionContentCard.sql.sql"))
-                                                                        ->replace("%FIRST_POSITION%", $this->getPosition($getData['id']) + 1)
-                                                                        ->replace("%SECOND_POSITION%", $this->getMaxPosition($getData['idParent']))
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionContentCard.sql"))
+                                                                        ->replace("%FIRST_POSITION%", $this->getPositionContent($getData['id']) + 1)
+                                                                        ->replace("%SECOND_POSITION%", $this->getMaxPositionContent($getData['idParent']))
                                                                         ->replace("%OPERATION%", "-")
+                                                                        ->replace("%ID_CARD%", $getData['idParent'])
                                                                         ->getSql());  
                 $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/DeleteElement.sql"))->replace('%ID%', $getData['id'])->getSql());
             } else {
@@ -211,37 +225,126 @@
         }
 
         function put_card($getData, $postData) {
-            if (!isset($getData['id'])) {
-                throw new InvalidArgumentException('Не указан id карточки');
-            }
+            //if (!isset($getData['id']) || !isset($getData['idParent'])) {
+            //    throw new InvalidArgumentException('Не указан id');
+            //}
 
+            if ($getData['type'] === 'preview') {
+                $this->updatePreview($getData, $postData);
+            } else if ($getData['type'] === 'content') { 
+                $this->updateContent($getData, $postData);
+            } else {
+                throw new InvalidArgumentException('Ошибка в праметре type');
+            }
+        }
+
+        function updateContent($getData, $postData) {
             if (empty($postData)) {
-                throw new InvalidArgumentException('Не указаны данные элемента');
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdateVisibilityCardContent.sql"))
+                            ->replace("%ID%", $getData['id'])
+                            ->getSql());
+                return;
             }
 
             $postObject = json_decode($postData);
-            
-            $imgPath = null;
-            if (!empty($postObject->img)) {
-                $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+
+            $pos = $this->getPositionContent($getData['id']);
+            $oldPos = $this->getPositionContent($getData['id']);
+            if (!empty($postObject->newPosition)) {
+                if ($postObject->newPosition == $oldPos) {
+                    throw new InvalidArgumentException('Новая позиция не должна быть равна старой');
+                }
+
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionContentCard.sql"))
+                                                                        ->replace("%FIRST_POSITION%", min($oldPos, $postObject->newPosition))
+                                                                        ->replace("%SECOND_POSITION%", max($oldPos, $postObject->newPosition))
+                                                                        ->replace("%OPERATION%", $oldPos > $postObject->newPosition ? "+" : "-")
+                                                                        ->replace("%ID_CARD%", $getData['idParent'])
+                                                                        ->getSql());  
+                $pos = $postObject->newPosition;                                                                           
             }
+
+            $position = isset($postObject->newPosition) ? $postObject->newPosition : null;
             
-            $sql = (new SqlScript("/Card/sql/UpdateCard.sql"))
-                                ->replace("%TITLE%", $postObject->title)
-                                ->replace("%DESCRIPTION%", $postObject->description)
-                                ->replace("%VIDEO_SRC%", $postObject->videoSrc)
-                                ->replace("%ID_PAGE%", $postObject->idPage)
+            $sql = (new SqlScript("/Card/sql/UpdateCardContent.sql"))
                                 ->replace("%ID%", $getData['id']);
 
+            if ($position != null) {
+                $sql->replace("%POSITION%", "`POSITION` = '" . $position . "'");
+            } else {
+                $sql->replace("%POSITION%", "");
+            }
+            
+            $result = $this->mySQLWorker->connectLink->query($sql->getSql());
+        }
+
+        function updatePreview($getData, $postData) {
+            if (empty($postData)) {
+                $result = $this->mySQLWorker->connectLink->query($sql = (new SqlScript("/Card/sql/UpdateVisibilityCard.sql"))
+                            ->replace("%ID%", $getData['id'])
+                            ->getSql());
+                return;
+            }
+
+            $postObject = json_decode($postData);
+        
+            $imgPath = null;
+            if (isset($postObject->img)) {
+                
+                $filepath = "../img/" . $this->getImgSrc($getData['id']);
+                unlink($filepath);
+
+                $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
+            }
+            $pos = $this->getPosition($getData['id']);
+            $oldPos = $this->getPosition($getData['id']);
+            if (!empty($postObject->newPosition)) {
+                if ($postObject->newPosition == $oldPos) {
+                    throw new InvalidArgumentException('Новая позиция не должна быть равна старой');
+                }
+
+                $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card/sql/UpdatePositionCard.sql"))
+                                                                        ->replace("%FIRST_POSITION%", min($oldPos, $postObject->newPosition))
+                                                                        ->replace("%SECOND_POSITION%", max($oldPos, $postObject->newPosition))
+                                                                        ->replace("%OPERATION%", $oldPos > $postObject->newPosition ? "+" : "-")
+                                                                        ->replace("%ID_PAGE%", $getData['idParent'])
+                                                                        ->getSql());  
+                $pos = $postObject->newPosition;                                                                           
+            }
+            
+            $title = !empty($postObject->title) ? $postObject->title : null;
+            $src = !empty($postObject->src) ? $postObject->src : null;
+            $position = isset($postObject->newPosition) ? $postObject->newPosition : null;
+            
+            $sql = (new SqlScript("/Card/sql/UpdateCard.sql"))
+                                ->replace("%ID%", $getData['id']);
+
+                                
+            if ($title != null) {
+                $sql->replace("%TITLE%", "`TITLE_PREVIEW` = '" . $title . "'". (($position != null || $imgPath != null || $src != null) ? "," : ""));
+            } else {
+                $sql->replace("%TITLE%", "");
+            }
+            
+            if ($position != null) {
+                $sql->replace("%POSITION%", "`POSITION` = '" . $position . "'" . (($imgPath != null || $src != null) ? "," : ""));
+            } else {
+                $sql->replace("%POSITION%", "");
+            }
+            
             if ($imgPath != null) {
-                $sql->replace("%IMG%", "`IMG_SRC` = '" . $imgPath . "',");
+                $sql->replace("%IMG%", "`IMG_SRC_PREVIEW` = '" . $imgPath . "'" . ($src != null ? "," : ""));
             } else {
                 $sql->replace("%IMG%", "");
             }
 
-
-            $result = $this->mySQLWorker->connectLink->query($sql->getSql());  
-
+            if ($src != null) {
+                $sql->replace("%SRC%", "`SRC` = '" . $src . "'" );
+            } else {
+                $sql->replace("%SRC%", "");
+            }
+                        
+            $result = $this->mySQLWorker->connectLink->query($sql->getSql()); 
         }
         
     }
