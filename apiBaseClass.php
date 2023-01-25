@@ -34,7 +34,7 @@
 
         public static function saveFile($fileBase64, $extension) 
         {
-            $path_with_end_slash = "\\img\\";
+            $path_with_end_slash = "/img/";
             $splited = explode(',', substr($fileBase64 , 5 ) , 2);
             $mime=$splited[0];
             $data=$splited[1];
@@ -42,10 +42,25 @@
             $mime_split_without_base64=explode(';', $mime,2);
             $mime_split=explode('/', $mime_split_without_base64[0],2);
             $output_file_with_extension=$output_file_without_extension.'.'.$extension;
-            file_put_contents(dirname(__FILE__). '\\' . $path_with_end_slash . $output_file_with_extension, base64_decode($data) );
+            file_put_contents(dirname(__FILE__). '/' . $path_with_end_slash . $output_file_with_extension, base64_decode($data) );
             return $output_file_with_extension;
         }
         
+        
+
+        public static function saveDocument($fileBase64, $extension) 
+        {
+            $path_with_end_slash = "/doc/";
+            $splited = explode(',', substr($fileBase64 , 5 ) , 2);
+            $mime=$splited[0];
+            $data=$splited[1];
+            $output_file_without_extension = apiBaseClass::getRandomFileName($path_with_end_slash, $extension);
+            $mime_split_without_base64=explode(';', $mime,2);
+            $mime_split=explode('/', $mime_split_without_base64[0],2);
+            $output_file_with_extension=$output_file_without_extension.'.'.$extension;
+            file_put_contents(dirname(__FILE__). '/' . $path_with_end_slash . $output_file_with_extension, base64_decode($data) );
+            return $output_file_with_extension;
+        }
     }
 
 ?>
