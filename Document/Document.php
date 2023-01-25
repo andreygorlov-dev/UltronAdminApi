@@ -19,7 +19,7 @@
             if ($row = $result->fetch_assoc()) {
                 return $row['IMG_SRC'];
             }
-            throw new InvalidArgumentException('Несуществующий id страницы');;
+            throw new InvalidArgumentException('Несуществующий id');;
         }
 
         function getDocSrc($id) {
@@ -27,7 +27,7 @@
             if ($row = $result->fetch_assoc()) {
                 return $row['FILE_SRC'];
             }
-            throw new InvalidArgumentException('Несуществующий id страницы');;
+            throw new InvalidArgumentException('Несуществующий id');
         }
 
         function getPosition($id) {
@@ -129,7 +129,7 @@
                 $filepath = "../doc/" . $this->getDocSrc($getData['id']);
                 unlink($filepath);
 
-                $imgPath = apiBaseClass::saveFile($postObject->doc->docBase64, $postObject->doc->docExtension);
+                $docPath = apiBaseClass::saveDocument($postObject->doc->docBase64, $postObject->doc->docExtension);
             }
 
             $pos = $this->getPosition($getData['id']);
@@ -170,7 +170,7 @@
             if ($imgPath != null) {
                 $sql->replace("%IMG%", "`IMG_SRC` = '" . $imgPath . "'" . ($docPath != null ? "," : ""));
             } else {
-                $sql->replace("%IMG_SRC%", "");
+                $sql->replace("%IMG%", "");
             }
 
             if ($docPath != null) {
@@ -178,8 +178,6 @@
             } else {
                 $sql->replace("%DOC%", "");
             }
-            
-            echo $sql->getSql();
             
             $result = $this->mySQLWorker->connectLink->query($sql->getSql());  
 
