@@ -1,0 +1,6 @@
+UPDATE `DOCUMENTS` SET 
+    %TITLE%
+    %POSITION%
+    %IMG%
+    %DOC%
+WHERE `ID` = %ID%
