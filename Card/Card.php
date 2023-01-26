@@ -158,13 +158,13 @@
                     case 'ELEM_LIST':
                         $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
                         $elem = new ElemList($postObject->value ,apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension));
-                        $value = json_encode($elem);
+                        $value = json_encode($elem, JSON_UNESCAPED_UNICODE);
                         break;   
                     case 'TABLE':
-                        $value = json_encode($postObject->table);
+                        $value = json_encode($postObject->table, JSON_UNESCAPED_UNICODE);
                         break;     
                     case 'TEXT3':
-                        $value = json_encode($postObject->textType);
+                        $value = json_encode($postObject->textType, JSON_UNESCAPED_UNICODE);
                         break;   
                     default:
                         $value = $postObject->value;
