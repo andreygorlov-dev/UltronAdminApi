@@ -92,7 +92,7 @@
                 while($row = $result->fetch_assoc()) {
                     $myArray = array();
                     $myArray['ID'] = $row['ID'];
-                    if ($row['TYPE'] === 'ELEM_LIST' || $row['TYPE'] === "TEXT3" || $row['TYPE'] === "TABLE") {
+                    if ($row['TYPE'] === 'ELEM_LIST' || $row['TYPE'] === "TEXT3" || $row['TYPE'] === "TABLE" || $row['TYPE'] === "LINK") {
                         $myArray['VALUE'] = json_decode($row['VALUE']);
                     } else {
                         $myArray['VALUE'] = $row['VALUE'];
@@ -165,6 +165,9 @@
                         break;     
                     case 'TEXT3':
                         $value = json_encode($postObject->textType, JSON_UNESCAPED_UNICODE);
+                        break;  
+                    case 'LINK':
+                        $value = json_encode($postObject->link, JSON_UNESCAPED_UNICODE);
                         break;   
                     default:
                         $value = $postObject->value;
