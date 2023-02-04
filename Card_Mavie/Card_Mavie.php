@@ -1,6 +1,6 @@
 <?php
     require_once('../SqlScript.php');
-    require_once('../PageType/PageType.php');
+    require_once('../PageType_Mavie/PageType_Mavie.php');
 
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
@@ -79,8 +79,8 @@
 
             if ($getData['type'] === 'preview') {
                 $cardResponse = new CardResponse();
-                $pageType = new PageType();
-                $cardResponse->type = $pageType->get_pagetype($getData, $postData);
+                $pageType = new PageType_Mavie();
+                $cardResponse->type = $pageType->get_pagetype_mavie($getData, $postData);
                 $result = $this->mySQLWorker->connectLink->query((new SqlScript("/Card_Mavie/sql/GetCardsPreview.sql"))->replace('%ID%', $getData['id'])->getSql());
                 while($row = $result->fetch_assoc()) {
                     $cardResponse->cards[] = $row;
@@ -121,8 +121,8 @@
 
             if ($getData['type'] === 'preview') {
                 $pos = $this->getMaxPosition($getData['id']);
-                $pageType = new PageType();
-                $type = $pageType->get_pagetype($getData, $postData);
+                $pageType = new PageType_Mavie();
+                $type = $pageType->get_pagetype_mavie($getData, $postData);
 
                 $imgPath = apiBaseClass::saveFile($postObject->img->imgBase64, $postObject->img->imgExtension);
                 if (!empty($postObject->position) && $pos > $postObject->position) {
