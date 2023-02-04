@@ -147,8 +147,6 @@
                 $sql->replace("%IMG%", "");
             }
             
-            echo $sql->getSql();
-            
             $result = $this->mySQLWorker->connectLink->query($sql->getSql());  
 
         }
