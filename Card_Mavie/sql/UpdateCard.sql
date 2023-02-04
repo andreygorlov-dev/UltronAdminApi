@@ -1,0 +1,6 @@
+UPDATE `CARDS_MAVIE` SET 
+    %TITLE%
+    %POSITION%
+    %IMG%
+    %SRC%
+WHERE `ID` = %ID%

@@ -1,0 +1,6 @@
+UPDATE `DOCUMENTS_MAVIE` SET 
+    %TITLE%
+    %POSITION%
+    %IMG%
+    %DOC%
+WHERE `ID` = %ID%

@@ -1,0 +1,5 @@
+UPDATE `PAGES_MAVIE` SET 
+    %NAME%
+    %POSITION%
+    %IMG%
+WHERE `ID` = %ID%
